@@ -1,0 +1,1113 @@
+<!DOCTYPE html>
+<html lang="or">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MDM Daily Consumption & Stock Register (ମଧ୍ୟାହ୍ନ ଭୋଜନ ହିସାବ)</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+Oriya:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Inter', 'Noto Sans Oriya', sans-serif;
+      background-color: #f3f5f8;
+      color: #0f172a;
+    }
+    .tabular-nums {
+      font-variant-numeric: tabular-nums;
+    }
+    /* Hide number input spinners for cleaner mobile typing */
+    input[type="number"]::-webkit-inner-spin-button,
+    input[type="number"]::-webkit-outer-spin-button {
+      -webkit-appearance: none;
+      margin: 0;
+    }
+    input[type="number"] {
+      -moz-appearance: textfield;
+    }
+
+    /* Official A4 Single-Page Register Print Styling */
+    @media print {
+      @page {
+        size: A4 portrait;
+        margin: 6mm;
+      }
+      body {
+        background: #ffffff !important;
+        color: #000000 !important;
+        font-size: 10px !important;
+        padding-bottom: 0 !important;
+      }
+      .no-print {
+        display: none !important;
+      }
+      .print-container {
+        box-shadow: none !important;
+        border: none !important;
+        padding: 0 !important;
+        margin: 0 !important;
+        max-width: 100% !important;
+      }
+      input, select {
+        border: none !important;
+        background: transparent !important;
+        padding: 0 !important;
+        font-weight: 600 !important;
+        color: #000 !important;
+        appearance: none !important;
+      }
+      table {
+        border-collapse: collapse !important;
+        width: 100% !important;
+      }
+      th, td {
+        border: 1px solid #1e293b !important;
+        padding: 2px 4px !important;
+        font-size: 9.5px !important;
+        line-height: 1.2 !important;
+      }
+    }
+  </style>
+</head>
+<body class="min-h-screen pb-24 md:pb-12">
+
+  <!-- Toast Notification Banner -->
+  <div id="toast" class="no-print fixed top-4 right-4 z-50 hidden transform transition-all duration-300 max-w-sm rounded-xl bg-slate-900 text-white px-4 py-3 shadow-xl border border-slate-700 flex items-center gap-3">
+    <span id="toast-icon" class="text-emerald-400 text-lg font-bold">✓</span>
+    <div id="toast-msg" class="text-sm font-medium leading-snug"></div>
+  </div>
+
+  <!-- Top App Bar -->
+  <header class="no-print bg-emerald-800 text-white shadow-md sticky top-0 z-30">
+    <div class="max-w-6xl mx-auto px-4 py-3 flex flex-wrap items-center justify-between gap-3">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-white/15 flex items-center justify-center text-xl font-bold border border-white/20">
+          🍲
+        </div>
+        <div>
+          <h1 class="text-base sm:text-lg font-bold leading-tight">ମଧ୍ୟାହ୍ନ ଭୋଜନ ଦୈନିକ ହିସାବ (MDM Register)</h1>
+          <p class="text-xs text-emerald-100">Upper Primary (Class 6th to 8th) • All 17 Items (Sl. 1–17)</p>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-2 flex-wrap">
+        <button type="button" onclick="openStandardsModal()" class="px-3 py-2 rounded-lg bg-emerald-700 hover:bg-emerald-600 text-xs sm:text-sm font-medium border border-emerald-500/40 transition flex items-center gap-1.5">
+          <span>⚙️</span> <span>ରେଟ୍ ସେଟିଂ (Rates & CHIKKI)</span>
+        </button>
+        <button type="button" onclick="openHistoryModal()" class="px-3 py-2 rounded-lg bg-emerald-700 hover:bg-emerald-600 text-xs sm:text-sm font-medium border border-emerald-500/40 transition flex items-center gap-1.5">
+          <span>🗂️</span> <span>ପୁରୁଣା ରେକର୍ଡ (<span id="saved-count">0</span>)</span>
+        </button>
+        <button type="button" onclick="window.print()" class="px-3 py-2 rounded-lg bg-white text-emerald-900 hover:bg-emerald-50 text-xs sm:text-sm font-semibold shadow-sm transition flex items-center gap-1.5">
+          <span>🖨️</span> <span>ପ୍ରିଣ୍ଟ (Print)</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Printable Register Container -->
+  <main class="max-w-6xl mx-auto px-3 sm:px-5 pt-4 sm:pt-6 print-container">
+
+    <!-- Register Header Card -->
+    <section class="bg-white rounded-2xl shadow-sm border border-slate-200 p-4 sm:p-6 mb-4">
+      <div class="text-center border-b border-slate-200 pb-3 mb-4">
+        <p class="text-xs font-semibold uppercase tracking-wider text-emerald-700">THE AKSHAYA PATRA FOUNDATION • ODISHA MDM FORMAT</p>
+        <h2 class="text-lg sm:text-xl font-bold text-slate-900 mt-0.5">ପ୍ରତିଦିନ ମଧ୍ୟାହ୍ନ ଭୋଜନ ପାଇଁ ବ୍ୟବହାର କରାଯାଇଥିବା ସାମଗ୍ରୀର ବିବରଣୀ</h2>
+        <p class="text-xs sm:text-sm text-slate-600">Daily Mid-Day Meal Stock & Consumption Register (Class 6th to 8th)</p>
+      </div>
+
+      <!-- School & Date Metadata Grid -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+        <!-- School Name -->
+        <div class="sm:col-span-2">
+          <label class="block text-xs font-semibold text-slate-600 mb-1">ବିଦ୍ୟାଳୟର ନାମ / Name of the School</label>
+          <input type="text" id="schoolName" placeholder="ଉଦାହରଣ: ସରକାରୀ ଉଚ୍ଚ ପ୍ରାଥମିକ ବିଦ୍ୟାଳୟ..."
+            class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm font-medium focus:border-emerald-600 focus:ring-2 focus:ring-emerald-600/20 outline-none" />
+        </div>
+
+        <!-- Kitchen Centre -->
+        <div class="sm:col-span-2">
+          <label class="block text-xs font-semibold text-slate-600 mb-1">ଖାଦ୍ୟ ପ୍ରସ୍ତୁତ କେନ୍ଦ୍ରର ନାମ / Name of the Kitchen Centre</label>
+          <input type="text" id="kitchenName" placeholder="ଉଦାହରଣ: ଅକ୍ଷୟ ପାତ୍ର ଫାଉଣ୍ଡେସନ୍, ଗୋପ, ପୁରୀ"
+            class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm font-medium focus:border-emerald-600 focus:ring-2 focus:ring-emerald-600/20 outline-none" />
+        </div>
+
+        <!-- Date Picker -->
+        <div>
+          <label class="block text-xs font-semibold text-slate-600 mb-1">ତାରିଖ / Date</label>
+          <input type="date" id="entryDate"
+            class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm font-semibold focus:border-emerald-600 focus:ring-2 focus:ring-emerald-600/20 outline-none" />
+        </div>
+
+        <!-- Day Selector -->
+        <div>
+          <label class="block text-xs font-semibold text-slate-600 mb-1">ବାର / Day</label>
+          <select id="daySelect"
+            class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm font-semibold bg-white focus:border-emerald-600 focus:ring-2 focus:ring-emerald-600/20 outline-none">
+            <option value="Monday">ସୋମବାର / Monday</option>
+            <option value="Tuesday">ମଙ୍ଗଳବାର / Tuesday</option>
+            <option value="Wednesday">ବୁଧବାର / Wednesday</option>
+            <option value="Thursday">ଗୁରୁବାର / Thursday</option>
+            <option value="Friday">ଶୁକ୍ରବାର / Friday</option>
+            <option value="Saturday">ଶନିବାର / Saturday</option>
+            <option value="Sunday">ରବିବାର / Sunday (ଛୁଟି / Holiday)</option>
+          </select>
+        </div>
+
+        <!-- Class & Enrollment -->
+        <div>
+          <label class="block text-xs font-semibold text-slate-600 mb-1">ଶ୍ରେଣୀ ଓ ନାମଲେଖା / Class & Enrollment</label>
+          <div class="flex gap-2">
+            <input type="text" id="classRange" value="6th to 8th"
+              class="w-1/2 rounded-xl border border-slate-300 px-2.5 py-2 text-sm font-medium text-center focus:border-emerald-600 outline-none" />
+            <input type="number" id="enrollment" min="0" placeholder="ମୋଟ ପିଲା"
+              class="w-1/2 rounded-xl border border-slate-300 px-2.5 py-2 text-sm font-semibold text-center tabular-nums focus:border-emerald-600 outline-none" />
+          </div>
+        </div>
+
+        <!-- Today's Attendance -->
+        <div class="bg-emerald-50 border-2 border-emerald-500 rounded-xl p-2.5">
+          <label for="attendance" class="block text-xs font-bold text-emerald-900 mb-1">
+            ଆଜିର ଉପସ୍ଥାନ / Today's Attendance *
+          </label>
+          <div class="flex items-center gap-1.5">
+            <button type="button" onclick="adjustAttendance(-1)" class="no-print w-9 h-9 rounded-lg bg-white border border-emerald-300 text-emerald-800 font-bold text-lg hover:bg-emerald-100 active:scale-95 transition">−</button>
+            <input type="number" id="attendance" min="0" value="0"
+              class="w-full rounded-lg border border-emerald-400 bg-white px-2 py-1.5 text-center text-lg font-extrabold text-emerald-950 tabular-nums focus:outline-none focus:ring-2 focus:ring-emerald-600" />
+            <button type="button" onclick="adjustAttendance(1)" class="no-print w-9 h-9 rounded-lg bg-white border border-emerald-300 text-emerald-800 font-bold text-lg hover:bg-emerald-100 active:scale-95 transition">+</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Today's Menu Banner -->
+      <div id="menuBanner" class="mt-4 rounded-xl bg-amber-50 border border-amber-300 px-4 py-3 flex flex-wrap items-center justify-between gap-2">
+        <div class="flex items-center gap-2.5">
+          <span class="text-xl">🍛</span>
+          <div>
+            <span class="text-xs font-bold uppercase tracking-wide text-amber-800 block">ଆଜିର ମେନୁ / Today's Menu</span>
+            <span id="menuText" class="text-sm sm:text-base font-bold text-slate-900">ଭାତ, ହରଡ଼ ଡାଲମା, ଆଚାର (Rice, Harad Dalma, Pickle)</span>
+          </div>
+        </div>
+        <div id="shortageAlert" class="hidden rounded-lg bg-red-600 text-white px-3 py-1.5 text-xs font-bold animate-pulse">
+          ⚠️ ସାବଧାନ: କିଛି ସାମଗ୍ରୀର ଷ୍ଟକ୍ କମ୍ ଅଛି! (Insufficient Stock)
+        </div>
+      </div>
+    </section>
+
+    <!-- Action Bar (Save / Carry Forward / CSV Export) -->
+    <section class="no-print flex flex-wrap items-center justify-between gap-2 mb-4">
+      <div class="flex flex-wrap items-center gap-2">
+        <button type="button" onclick="saveDailyRecord()" class="px-4 py-2.5 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white text-sm font-semibold shadow-sm transition flex items-center gap-2">
+          <span>💾</span> <span>ଆଜିର ହିସାବ ସେଭ୍ କରନ୍ତୁ (Save)</span>
+        </button>
+        <button type="button" onclick="carryForwardToNextDay()" class="px-4 py-2.5 rounded-xl bg-blue-700 hover:bg-blue-800 text-white text-sm font-semibold shadow-sm transition flex items-center gap-2">
+          <span>⏭️</span> <span>ପରଦିନକୁ ବଳକା ଷ୍ଟକ୍ ନିଅନ୍ତୁ (Carry Forward)</span>
+        </button>
+      </div>
+
+      <div class="flex items-center gap-2">
+        <span class="text-xs font-semibold text-emerald-900 bg-emerald-100 border border-emerald-300 px-3 py-2 rounded-xl">
+          📋 ସମସ୍ତ ୧୭ଟି ସାମଗ୍ରୀ (Sl. No. 1–17)
+        </span>
+        <button type="button" onclick="exportAllCSV()" class="px-3.5 py-2 rounded-xl bg-white hover:bg-slate-100 text-slate-800 border border-slate-300 text-xs sm:text-sm font-semibold shadow-xs transition flex items-center gap-1.5">
+          <span>📥</span> <span>CSV</span>
+        </button>
+      </div>
+    </section>
+
+    <!-- Main Stock & Consumption Register Table (All 17 Rows Always Visible, No Height Clipping) -->
+    <section class="bg-white rounded-2xl shadow-sm border border-slate-200 mb-4">
+      <div class="w-full overflow-x-auto rounded-2xl">
+        <table class="w-full text-left border-collapse">
+          <thead>
+            <tr class="bg-slate-800 text-white text-xs sm:text-sm">
+              <th class="py-3 px-2.5 text-center w-12 border-r border-slate-700">କ୍ର.ନଂ<br><span class="font-normal text-slate-300 text-[11px]">Sl.No</span></th>
+              <th class="py-3 px-3 min-w-[185px] border-r border-slate-700">ସାମଗ୍ରୀ ନାମ<br><span class="font-normal text-slate-300 text-[11px]">Items Name (Per Student)</span></th>
+              <th class="py-3 px-2.5 text-right min-w-[115px] border-r border-slate-700">ପୂର୍ବରୁ ରହିଛି (1)<br><span class="font-normal text-slate-300 text-[11px]">Opening Stock</span></th>
+              <th class="py-3 px-2.5 text-right min-w-[115px] border-r border-slate-700">ଗ୍ରହଣ କଲୁ (2)<br><span class="font-normal text-slate-300 text-[11px]">Stock Recd.</span></th>
+              <th class="py-3 px-2.5 text-right min-w-[110px] border-r border-slate-700 bg-slate-700/70">ସମୁଦାୟ (1+2=3)<br><span class="font-normal text-slate-300 text-[11px]">Total Stock</span></th>
+              <th class="py-3 px-2.5 text-right min-w-[115px] border-r border-slate-700 bg-amber-900/50">ବ୍ୟବହାର ହେଲା (4)<br><span class="font-normal text-amber-200 text-[11px]">Issued (Kg)</span></th>
+              <th class="py-3 px-2.5 text-right min-w-[115px] bg-emerald-900/60">ଅବଶିଷ୍ଟ ରହିଲା (3-4=5)<br><span class="font-normal text-emerald-200 text-[11px]">Closing Balance</span></th>
+            </tr>
+          </thead>
+          <tbody id="stockTableBody" class="divide-y divide-slate-200 text-xs sm:text-sm">
+            <!-- All 17 rows (Sl. No. 1 to 17) rendered cleanly here -->
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- Provisions Section (Vegetable & Firewood) + Sign-off -->
+    <section class="grid grid-cols-1 lg:grid-cols-12 gap-4 mb-6">
+      <!-- Provisions Table -->
+      <div class="lg:col-span-7 bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+        <div class="bg-slate-100 px-4 py-2.5 border-b border-slate-200 flex items-center justify-between">
+          <h3 class="font-bold text-sm text-slate-800">ପରିବା ଓ ଜାଳେଣି ଖର୍ଚ୍ଚ / Provisions (₹)</h3>
+          <span class="text-xs text-slate-500">Auto-calculated from Attendance</span>
+        </div>
+        <div class="overflow-x-auto">
+          <table class="w-full text-left border-collapse text-xs sm:text-sm">
+            <thead>
+              <tr class="bg-slate-50 text-slate-700 border-b border-slate-200">
+                <th class="py-2 px-3 w-10">କ୍ର.</th>
+                <th class="py-2 px-3">ବିବରଣୀ / Provision</th>
+                <th class="py-2 px-3">ପରିବା ନାମ / Veg. Name</th>
+                <th class="py-2 px-3 text-right w-24">ପରିମାଣ (Kg)</th>
+                <th class="py-2 px-3 text-right w-28">ଟଙ୍କା / Amount (₹)</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-200">
+              <tr>
+                <td class="py-2.5 px-3 font-medium text-slate-500">1</td>
+                <td class="py-2.5 px-3 font-semibold">
+                  ପରିବା / Vegetable
+                  <div class="text-[11px] font-normal text-slate-500">Rate: ₹<span id="vegRateDisplay">1.40</span> / student</div>
+                </td>
+                <td class="py-2.5 px-3">
+                  <input type="text" id="vegName" placeholder="ଆଳୁ, ବାଇଗଣ, କଖାରୁ..."
+                    class="w-full rounded-lg border border-slate-300 px-2.5 py-1.5 text-xs sm:text-sm focus:border-emerald-600 outline-none" />
+                </td>
+                <td class="py-2.5 px-3">
+                  <input type="number" step="0.01" id="vegQty" placeholder="0.00"
+                    class="w-full rounded-lg border border-slate-300 px-2 py-1.5 text-right tabular-nums text-xs sm:text-sm focus:border-emerald-600 outline-none" />
+                </td>
+                <td class="py-2.5 px-3 text-right font-bold text-slate-900 tabular-nums">
+                  ₹<span id="vegTotalAmount">0.00</span>
+                </td>
+              </tr>
+              <tr>
+                <td class="py-2.5 px-3 font-medium text-slate-500">2</td>
+                <td class="py-2.5 px-3 font-semibold" colspan="2">
+                  ଜାଳେଣି / Fire Wood
+                  <div class="text-[11px] font-normal text-slate-500">Rate: ₹<span id="firewoodRateDisplay">0.60</span> / student</div>
+                </td>
+                <td class="py-2.5 px-3 text-right text-slate-400">—</td>
+                <td class="py-2.5 px-3 text-right font-bold text-slate-900 tabular-nums">
+                  ₹<span id="firewoodTotalAmount">0.00</span>
+                </td>
+              </tr>
+              <tr class="bg-emerald-50/80 font-bold text-emerald-950">
+                <td colspan="4" class="py-2.5 px-3 text-right">ମୋଟ ପରିବା ଓ ଜାଳେଣି ଖର୍ଚ୍ଚ / Total Provisions (₹):</td>
+                <td class="py-2.5 px-3 text-right text-base tabular-nums">₹<span id="grandProvisionTotal">0.00</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Verification & Signature Block -->
+      <div class="lg:col-span-5 bg-white rounded-2xl shadow-sm border border-slate-200 p-4 flex flex-col justify-between">
+        <div>
+          <h3 class="font-bold text-sm text-slate-800 border-b border-slate-200 pb-2 mb-3">ପ୍ରମାଣପତ୍ର ଓ ସ୍ୱାକ୍ଷର / Verification & Sign-off</h3>
+          <div class="grid grid-cols-2 gap-3 text-xs">
+            <div>
+              <label class="block text-slate-500 mb-1">Attendance given by</label>
+              <input type="text" id="attendanceGivenBy" placeholder="ଶିକ୍ଷକଙ୍କ ନାମ"
+                class="w-full rounded-lg border border-slate-300 px-2.5 py-1.5 focus:border-emerald-600 outline-none" />
+            </div>
+            <div>
+              <label class="block text-slate-500 mb-1">Issue witnessed by</label>
+              <input type="text" id="witnessedBy" placeholder="ସାକ୍ଷୀଙ୍କ ନାମ"
+                class="w-full rounded-lg border border-slate-300 px-2.5 py-1.5 focus:border-emerald-600 outline-none" />
+            </div>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-4 pt-8 mt-6 border-t border-dashed border-slate-300 text-center text-xs text-slate-600">
+          <div>
+            <div class="h-6"></div>
+            <p class="font-semibold text-slate-800">ପ୍ରସ୍ତୁତକାରୀଙ୍କ ସ୍ୱାକ୍ଷର ଓ ମୋହର</p>
+            <p>Prepared by (with Sign & Stamp)</p>
+          </div>
+          <div>
+            <div class="h-6"></div>
+            <p class="font-semibold text-slate-800">ଯାଞ୍ଚକାରୀଙ୍କ ସ୍ୱାକ୍ଷର</p>
+            <p>Checked & Collected By</p>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Mobile Sticky Bottom Quick-Action Bar -->
+  <div class="no-print fixed bottom-0 inset-x-0 bg-white border-t border-slate-200 px-4 py-2.5 shadow-lg flex items-center justify-between gap-2 md:hidden z-30">
+    <div class="text-xs">
+      <span class="text-slate-500 block">ଉପସ୍ଥାନ / Attendance</span>
+      <span class="font-extrabold text-base text-emerald-800 tabular-nums" id="mobileAttBadge">0 ପିଲା</span>
+    </div>
+    <div class="flex items-center gap-2">
+      <button type="button" onclick="saveDailyRecord()" class="px-3.5 py-2 rounded-xl bg-emerald-700 text-white text-xs font-bold shadow">
+        💾 Save
+      </button>
+      <button type="button" onclick="carryForwardToNextDay()" class="px-3.5 py-2 rounded-xl bg-blue-700 text-white text-xs font-bold shadow">
+        ⏭️ Next Day
+      </button>
+    </div>
+  </div>
+
+  <!-- Modal 1: Per-Student Standards Reference & Editor Chart -->
+  <div id="standardsModal" class="no-print fixed inset-0 z-50 hidden bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl max-w-4xl w-full max-h-[88vh] flex flex-col shadow-2xl overflow-hidden">
+      <div class="px-5 py-4 bg-emerald-800 text-white flex items-center justify-between">
+        <div>
+          <h3 class="font-bold text-base sm:text-lg">ପ୍ରତି ଛାତ୍ରଛାତ୍ରୀଙ୍କ ଦୈନିକ ପରିମାଣ ଚାର୍ଟ (01 Student Standard)</h3>
+          <p class="text-xs text-emerald-100">CHIKKI ବା ଅନ୍ୟ ସାମଗ୍ରୀର ପରିମାଣ ଏଠାରେ ବଦଳାଇ Save କରିପାରିବେ (All 17 Items)</p>
+        </div>
+        <button type="button" onclick="closeModal('standardsModal')" class="w-8 h-8 rounded-lg bg-white/15 hover:bg-white/25 flex items-center justify-center font-bold">✕</button>
+      </div>
+      <div class="p-4 overflow-auto text-xs">
+        <table class="w-full border-collapse border border-slate-300 text-right tabular-nums">
+          <thead>
+            <tr class="bg-slate-100 text-slate-800">
+              <th class="border border-slate-300 p-2 text-left">Ingredients (17 Items)</th>
+              <th class="border border-slate-300 p-2">Monday</th>
+              <th class="border border-slate-300 p-2">Tuesday</th>
+              <th class="border border-slate-300 p-2">Wednesday</th>
+              <th class="border border-slate-300 p-2">Thursday</th>
+              <th class="border border-slate-300 p-2">Friday</th>
+              <th class="border border-slate-300 p-2">Saturday</th>
+            </tr>
+          </thead>
+          <tbody id="standardsChartBody"></tbody>
+        </table>
+      </div>
+      <div class="px-5 py-3 bg-slate-50 border-t border-slate-200 flex items-center justify-between gap-2">
+        <button type="button" onclick="resetStandardsToDefault()" class="px-3.5 py-2 rounded-xl bg-slate-200 hover:bg-slate-300 text-slate-800 text-xs font-semibold">
+          ↺ Reset Default Rates
+        </button>
+        <button type="button" onclick="saveCustomStandards()" class="px-4 py-2 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white text-xs font-bold shadow">
+          💾 Save Rates (ସେଭ୍ କରନ୍ତୁ)
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal 2: Saved History Records -->
+  <div id="historyModal" class="no-print fixed inset-0 z-50 hidden bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl max-w-xl w-full max-h-[85vh] flex flex-col shadow-2xl overflow-hidden">
+      <div class="px-5 py-4 bg-slate-800 text-white flex items-center justify-between">
+        <div>
+          <h3 class="font-bold text-base">ସେଭ୍ ହୋଇଥିବା ଦୈନିକ ରେକର୍ଡ (Saved Records)</h3>
+          <p class="text-xs text-slate-300">ତାରିଖ ଅନୁଯାୟୀ ପୁରୁଣା ହିସାବ ଖୋଲନ୍ତୁ କିମ୍ବା ଡିଲିଟ୍ କରନ୍ତୁ</p>
+        </div>
+        <button type="button" onclick="closeModal('historyModal')" class="w-8 h-8 rounded-lg bg-white/15 hover:bg-white/25 flex items-center justify-center font-bold">✕</button>
+      </div>
+      <div id="historyList" class="p-4 overflow-auto space-y-2"></div>
+      <div class="px-5 py-3 bg-slate-50 border-t border-slate-200 flex items-center justify-between">
+        <button type="button" onclick="exportAllCSV()" class="px-3.5 py-2 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white text-xs font-semibold">
+          📥 Export All CSV
+        </button>
+        <button type="button" onclick="closeModal('historyModal')" class="px-4 py-2 rounded-xl bg-slate-200 hover:bg-slate-300 text-slate-800 text-xs font-semibold">
+          Close
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // =========================================================================
+    // 1. MASTER CONFIGURATION: ALL 17 EXACT REGISTER ITEMS IN ORDER
+    // =========================================================================
+    const ITEMS = [
+      { id: 'fci_rice',     sl: 1,  odia: 'ଚାଉଳ',           eng: 'FCI Rice' },
+      { id: 'kheeri_rice',  sl: 2,  odia: 'ଖିରି ଚାଉଳ',       eng: 'Kheeri Rice' },
+      { id: 'harad_dal',    sl: 3,  odia: 'ହରଡ଼ ଡାଲି',       eng: 'Harad Dal' },
+      { id: 'peas',         sl: 4,  odia: 'ମଟର',            eng: 'Peas / Matar' },
+      { id: 'ref_oil',      sl: 5,  odia: 'ରିଫାଇନ୍ ତେଲ',     eng: 'Ref. Oil' },
+      { id: 'phutan',       sl: 6,  odia: 'ଫୁଟଣ',            eng: 'Phutan' },
+      { id: 'turmeric',     sl: 7,  odia: 'ହଳଦୀ ଗୁଣ୍ଡ',       eng: 'Turmeric Powder' },
+      { id: 'milk_powder',  sl: 8,  odia: 'ଅମୁଲ',            eng: 'Milk Powder' },
+      { id: 'salt',         sl: 9,  odia: 'ଲୁଣ',             eng: 'Salt' },
+      { id: 'sugar',        sl: 10, odia: 'ଚିନି',            eng: 'Sugar' },
+      { id: 'pickle',       sl: 11, odia: 'ଆଚାର',           eng: 'Pickle' },
+      { id: 'curry_masala', sl: 12, odia: 'ତରକାରୀ ମସଲା',     eng: 'Curry Masala' },
+      { id: 'soya_chunk',   sl: 13, odia: 'ସୋୟାବିନ୍ ବଡ଼ି',   eng: 'Soya Chunk' },
+      { id: 'cumin',        sl: 14, odia: 'ଜିରା',            eng: 'Cummin Seeds / Jira' },
+      { id: 'dry_chilly',   sl: 15, odia: 'ଶୁଖିଲା ଲଙ୍କା',     eng: 'Dry Chilly' },
+      { id: 'vinegar',      sl: 16, odia: 'ଭିନେଗାର',        eng: 'Vinegar' },
+      { id: 'chikki',       sl: 17, odia: 'ଚିକି',            eng: 'CHIKKI' }
+    ];
+
+    // Exact Akshaya Patra Upper Primary (6th–8th) per-student consumption (kg) & ₹ rates
+    const DEFAULT_DAY_STANDARDS = {
+      Monday: {
+        menuOdia: 'ଭାତ, ହରଡ଼ ଡାଲମା, ଆଚାର',
+        menuEng: 'Rice, Harad Dalma, Pickle',
+        rates: {
+          fci_rice: 0.150,
+          harad_dal: 0.040,
+          ref_oil: 0.005,
+          phutan: 0.0008,
+          turmeric: 0.0004,
+          salt: 0.0035,
+          pickle: 0.010,
+          cumin: 0.0008,
+          dry_chilly: 0.0002,
+          chikki: 0
+        },
+        firewood: 0.60,
+        vegetable: 1.40
+      },
+      Tuesday: {
+        menuOdia: 'ଭାତ, ଆଳୁ ମଟର ତରକାରୀ, ଖିରି',
+        menuEng: 'Rice, Aloo Matar Curry, Kheer',
+        rates: {
+          fci_rice: 0.150,
+          kheeri_rice: 0.016,
+          peas: 0.035,
+          ref_oil: 0.006,
+          turmeric: 0.0004,
+          milk_powder: 0.0065,
+          salt: 0.0035,
+          sugar: 0.023,
+          curry_masala: 0.0012,
+          chikki: 0
+        },
+        firewood: 0.75,
+        vegetable: 1.00
+      },
+      Wednesday: {
+        menuOdia: 'ଭାତ, ଆଳୁ ସୋୟାବିନ୍ ତରକାରୀ',
+        menuEng: 'Rice, Aloo Soya Curry',
+        rates: {
+          fci_rice: 0.150,
+          ref_oil: 0.0065,
+          turmeric: 0.0004,
+          salt: 0.0035,
+          curry_masala: 0.0012,
+          soya_chunk: 0.026,
+          chikki: 0
+        },
+        firewood: 0.60,
+        vegetable: 1.00
+      },
+      Thursday: {
+        menuOdia: 'ଭାତ, ହରଡ଼ ଡାଲମା, ଆଚାର',
+        menuEng: 'Rice, Harad Dalma, Pickle',
+        rates: {
+          fci_rice: 0.150,
+          harad_dal: 0.040,
+          ref_oil: 0.005,
+          phutan: 0.0008,
+          turmeric: 0.0004,
+          salt: 0.0035,
+          pickle: 0.010,
+          cumin: 0.0008,
+          dry_chilly: 0.0002,
+          chikki: 0
+        },
+        firewood: 0.60,
+        vegetable: 1.40
+      },
+      Friday: {
+        menuOdia: 'ଭାତ, ପନିର ମଟର ତରକାରୀ',
+        menuEng: 'Rice, Paneer Matar Curry',
+        rates: {
+          fci_rice: 0.150,
+          peas: 0.035,
+          ref_oil: 0.007,
+          turmeric: 0.0004,
+          milk_powder: 0.012,
+          salt: 0.0035,
+          curry_masala: 0.0012,
+          vinegar: 0.0006,
+          chikki: 0
+        },
+        firewood: 0.60,
+        vegetable: 1.00
+      },
+      Saturday: {
+        menuOdia: 'ଭାତ, ଆଳୁ ସୋୟାବିନ୍ ତରକାରୀ',
+        menuEng: 'Rice, Aloo Soya Curry',
+        rates: {
+          fci_rice: 0.150,
+          ref_oil: 0.0065,
+          turmeric: 0.0004,
+          salt: 0.0035,
+          curry_masala: 0.0012,
+          soya_chunk: 0.026,
+          chikki: 0
+        },
+        firewood: 0.60,
+        vegetable: 1.00
+      },
+      Sunday: {
+        menuOdia: 'ରବିବାର ଛୁଟି (MDM ବନ୍ଦ)',
+        menuEng: 'Sunday Holiday (No Meal)',
+        rates: { chikki: 0 },
+        firewood: 0,
+        vegetable: 0
+      }
+    };
+
+    const STORAGE_KEY = 'odisha_mdm_register_v1';
+    const PROFILE_KEY = 'odisha_mdm_school_profile_v1';
+    const STANDARDS_KEY = 'odisha_mdm_custom_standards_v1';
+
+    // =========================================================================
+    // 2. HELPER UTILITIES (DATE, FORMATTING, TOAST)
+    // =========================================================================
+    function getTodayISO() {
+      const now = new Date();
+      return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+    }
+
+    function getDayNameFromDate(isoDate) {
+      if (!isoDate) return 'Monday';
+      const [y, m, d] = isoDate.split('-').map(Number);
+      const dt = new Date(y, m - 1, d);
+      const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+      return dayNames[dt.getDay()] || 'Monday';
+    }
+
+    function formatQty(val) {
+      const num = Number(val) || 0;
+      if (Math.abs(num) < 1e-7) return '0.000';
+      const fixed4 = num.toFixed(4);
+      // Keep 4 decimals if the 4th digit is non-zero (e.g., 0.0004, 0.0008, 0.0035), else 3 decimals
+      return fixed4.endsWith('0') ? num.toFixed(3) : fixed4;
+    }
+
+    let toastTimer = null;
+    function showToast(message, isWarning = false) {
+      const toast = document.getElementById('toast');
+      const icon = document.getElementById('toast-icon');
+      const msg = document.getElementById('toast-msg');
+      icon.textContent = isWarning ? '⚠️' : '✓';
+      icon.className = isWarning ? 'text-amber-400 text-lg font-bold' : 'text-emerald-400 text-lg font-bold';
+      msg.textContent = message;
+      toast.classList.remove('hidden');
+      if (toastTimer) clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => {
+        toast.classList.add('hidden');
+      }, 3200);
+    }
+
+    // Load & migrate custom standards so all 17 items always exist
+    function loadDayStandards() {
+      const cloned = JSON.parse(JSON.stringify(DEFAULT_DAY_STANDARDS));
+      try {
+        const saved = JSON.parse(localStorage.getItem(STANDARDS_KEY) || 'null');
+        if (saved && typeof saved === 'object') {
+          Object.keys(cloned).forEach(day => {
+            if (saved[day]?.rates) {
+              ITEMS.forEach(item => {
+                if (typeof saved[day].rates[item.id] === 'number') {
+                  cloned[day].rates[item.id] = saved[day].rates[item.id];
+                } else if (typeof cloned[day].rates[item.id] !== 'number') {
+                  cloned[day].rates[item.id] = 0;
+                }
+              });
+            }
+          });
+        }
+      } catch (e) {}
+      return cloned;
+    }
+
+    let DAY_STANDARDS = loadDayStandards();
+
+    // Current working stock state for all 17 items
+    let stockState = {};
+    function ensureAllItemsInStockState(targetState) {
+      ITEMS.forEach(item => {
+        if (!targetState[item.id] || typeof targetState[item.id] !== 'object') {
+          targetState[item.id] = { opening: 0, received: 0, manualIssued: null };
+        } else {
+          targetState[item.id].opening = parseFloat(targetState[item.id].opening) || 0;
+          targetState[item.id].received = parseFloat(targetState[item.id].received) || 0;
+          if (targetState[item.id].manualIssued === undefined) {
+            targetState[item.id].manualIssued = null;
+          }
+        }
+      });
+    }
+    ensureAllItemsInStockState(stockState);
+
+    // =========================================================================
+    // 3. CORE CALCULATION & TABLE RENDERING (ALL 17 ROWS ALWAYS RENDERED)
+    // =========================================================================
+    function renderTable() {
+      const day = document.getElementById('daySelect').value;
+      const attendance = Math.max(0, parseInt(document.getElementById('attendance').value, 10) || 0);
+      const standard = DAY_STANDARDS[day] || DAY_STANDARDS.Monday;
+
+      ensureAllItemsInStockState(stockState);
+
+      // Update Menu Banner & Mobile Badge
+      document.getElementById('menuText').textContent = `${standard.menuOdia} (${standard.menuEng})`;
+      document.getElementById('mobileAttBadge').textContent = `${attendance} ପିଲା`;
+
+      const tbody = document.getElementById('stockTableBody');
+      tbody.innerHTML = '';
+
+      let hasShortage = false;
+
+      // Render every single item from Sl. No. 1 to 17 without filtering any row out
+      ITEMS.forEach(item => {
+        const perStudentRate = standard.rates[item.id] || 0;
+        const isChikki = item.id === 'chikki';
+        const isUsedToday = perStudentRate > 0;
+
+        const opening = parseFloat(stockState[item.id]?.opening) || 0;
+        const received = parseFloat(stockState[item.id]?.received) || 0;
+        const totalStock = Number((opening + received).toFixed(4));
+
+        const autoIssued = Number((attendance * perStudentRate).toFixed(4));
+        const hasManualOverride =
+          stockState[item.id]?.manualIssued !== null &&
+          stockState[item.id]?.manualIssued !== undefined &&
+          stockState[item.id]?.manualIssued !== '';
+        const issued = hasManualOverride
+          ? Number((parseFloat(stockState[item.id].manualIssued) || 0).toFixed(4))
+          : autoIssued;
+
+        const closing = Number((totalStock - issued).toFixed(4));
+
+        const isShort = closing < -1e-6;
+        if (isShort) hasShortage = true;
+
+        const tr = document.createElement('tr');
+        if (isChikki) {
+          tr.className = 'bg-sky-50/90 hover:bg-sky-100/80 transition border-t-2 border-sky-300';
+        } else {
+          tr.className = isUsedToday
+            ? 'bg-amber-50/45 hover:bg-amber-50/85 transition'
+            : 'bg-white hover:bg-slate-50 transition text-slate-700';
+        }
+
+        tr.innerHTML = `
+          <td class="py-2 px-2.5 text-center font-bold ${isChikki ? 'text-sky-800' : 'text-slate-600'} border-r border-slate-200 tabular-nums">${item.sl}</td>
+          <td class="py-2 px-3 border-r border-slate-200">
+            <div class="flex items-center justify-between gap-1.5">
+              <div>
+                <span class="font-bold ${isChikki ? 'text-sky-950' : 'text-slate-900'}">${item.odia}</span>
+                <span class="${isChikki ? 'text-sky-800 font-semibold' : 'text-slate-600'} text-xs block sm:inline sm:ml-1">(${item.eng})</span>
+              </div>
+              ${isUsedToday
+                ? `<span class="shrink-0 text-[11px] font-semibold px-1.5 py-0.5 rounded bg-emerald-100 text-emerald-800 tabular-nums">${perStudentRate} kg</span>`
+                : isChikki
+                  ? `<button type="button" onclick="openStandardsModal()" class="no-print shrink-0 text-[10px] font-semibold px-1.5 py-0.5 rounded bg-sky-200/80 text-sky-900 hover:bg-sky-300">+ Set Rate</button>`
+                  : `<span class="no-print text-[10px] text-slate-400">0</span>`
+              }
+            </div>
+          </td>
+          <td class="py-1.5 px-2 border-r border-slate-200">
+            <input type="number" step="0.0001" min="0"
+              value="${opening === 0 ? '' : opening}"
+              placeholder="0.000"
+              onchange="updateStockInput('${item.id}', 'opening', this.value)"
+              class="w-full text-right rounded-lg border border-slate-300 bg-white px-2 py-1.5 text-xs sm:text-sm font-medium tabular-nums focus:border-emerald-600 focus:ring-1 focus:ring-emerald-600 outline-none" />
+          </td>
+          <td class="py-1.5 px-2 border-r border-slate-200">
+            <input type="number" step="0.0001" min="0"
+              value="${received === 0 ? '' : received}"
+              placeholder="0.000"
+              onchange="updateStockInput('${item.id}', 'received', this.value)"
+              class="w-full text-right rounded-lg border border-slate-300 bg-white px-2 py-1.5 text-xs sm:text-sm font-medium tabular-nums focus:border-emerald-600 focus:ring-1 focus:ring-emerald-600 outline-none" />
+          </td>
+          <td class="py-2 px-2.5 text-right font-semibold text-slate-800 border-r border-slate-200 bg-slate-50/70 tabular-nums">
+            ${formatQty(totalStock)}
+          </td>
+          <td class="py-1.5 px-2 text-right font-bold border-r border-slate-200 tabular-nums ${isUsedToday || issued > 0 ? 'text-amber-900 bg-amber-50/70' : 'text-slate-500'}">
+            <input type="number" step="0.0001" min="0"
+              value="${issued === 0 && !hasManualOverride ? '' : formatQty(issued)}"
+              placeholder="0.000"
+              title="Auto: ${formatQty(autoIssued)} (Editable)"
+              onchange="updateIssuedOverride('${item.id}', this.value)"
+              class="w-full text-right rounded-lg border ${hasManualOverride ? 'border-amber-500 bg-amber-100/70' : 'border-transparent bg-transparent hover:border-slate-300 focus:bg-white focus:border-emerald-600'} px-1.5 py-1 text-xs sm:text-sm font-bold tabular-nums outline-none" />
+          </td>
+          <td class="py-2 px-2.5 text-right font-extrabold tabular-nums ${isShort ? 'bg-red-100 text-red-700' : 'bg-emerald-50/60 text-emerald-950'}">
+            ${formatQty(closing)}
+            ${isShort ? '<span class="block text-[10px] font-bold text-red-700">ଷ୍ଟକ୍ କମ୍!</span>' : ''}
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+
+      // Toggle shortage warning badge
+      const shortageEl = document.getElementById('shortageAlert');
+      if (hasShortage) {
+        shortageEl.classList.remove('hidden');
+      } else {
+        shortageEl.classList.add('hidden');
+      }
+
+      // Calculate Provisions (Vegetable & Firewood)
+      const vegRate = standard.vegetable || 0;
+      const fwRate = standard.firewood || 0;
+      const vegAmount = attendance * vegRate;
+      const fwAmount = attendance * fwRate;
+      const grandTotal = vegAmount + fwAmount;
+
+      document.getElementById('vegRateDisplay').textContent = vegRate.toFixed(2);
+      document.getElementById('firewoodRateDisplay').textContent = fwRate.toFixed(2);
+      document.getElementById('vegTotalAmount').textContent = vegAmount.toFixed(2);
+      document.getElementById('firewoodTotalAmount').textContent = fwAmount.toFixed(2);
+      document.getElementById('grandProvisionTotal').textContent = grandTotal.toFixed(2);
+    }
+
+    function updateStockInput(itemId, field, rawValue) {
+      ensureAllItemsInStockState(stockState);
+      const num = parseFloat(rawValue);
+      stockState[itemId][field] = isNaN(num) || num < 0 ? 0 : num;
+      renderTable();
+    }
+
+    function updateIssuedOverride(itemId, rawValue) {
+      ensureAllItemsInStockState(stockState);
+      if (rawValue === '' || rawValue === null) {
+        stockState[itemId].manualIssued = null;
+      } else {
+        const num = parseFloat(rawValue);
+        stockState[itemId].manualIssued = isNaN(num) || num < 0 ? 0 : num;
+      }
+      renderTable();
+    }
+
+    function adjustAttendance(delta) {
+      const input = document.getElementById('attendance');
+      const current = parseInt(input.value, 10) || 0;
+      input.value = Math.max(0, current + delta);
+      renderTable();
+    }
+
+    // =========================================================================
+    // 4. LOCALSTORAGE PERSISTENCE, MIGRATION, CARRY FORWARD & HISTORY
+    // =========================================================================
+    function getSavedRecords() {
+      try {
+        return JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
+      } catch (e) {
+        return {};
+      }
+    }
+
+    function saveSchoolProfile() {
+      const profile = {
+        schoolName: document.getElementById('schoolName').value,
+        kitchenName: document.getElementById('kitchenName').value,
+        classRange: document.getElementById('classRange').value,
+        enrollment: document.getElementById('enrollment').value,
+        attendanceGivenBy: document.getElementById('attendanceGivenBy').value,
+        witnessedBy: document.getElementById('witnessedBy').value
+      };
+      localStorage.setItem(PROFILE_KEY, JSON.stringify(profile));
+    }
+
+    function loadSchoolProfile() {
+      try {
+        const profile = JSON.parse(localStorage.getItem(PROFILE_KEY) || '{}');
+        if (profile.schoolName) document.getElementById('schoolName').value = profile.schoolName;
+        if (profile.kitchenName) document.getElementById('kitchenName').value = profile.kitchenName;
+        if (profile.classRange) document.getElementById('classRange').value = profile.classRange;
+        if (profile.enrollment) document.getElementById('enrollment').value = profile.enrollment;
+        if (profile.attendanceGivenBy) document.getElementById('attendanceGivenBy').value = profile.attendanceGivenBy;
+        if (profile.witnessedBy) document.getElementById('witnessedBy').value = profile.witnessedBy;
+      } catch (e) {}
+    }
+
+    function saveDailyRecord(silent = false) {
+      const date = document.getElementById('entryDate').value || getTodayISO();
+      const day = document.getElementById('daySelect').value;
+      const attendance = Math.max(0, parseInt(document.getElementById('attendance').value, 10) || 0);
+
+      ensureAllItemsInStockState(stockState);
+      saveSchoolProfile();
+
+      const records = getSavedRecords();
+      records[date] = {
+        date,
+        day,
+        schoolName: document.getElementById('schoolName').value,
+        kitchenName: document.getElementById('kitchenName').value,
+        classRange: document.getElementById('classRange').value,
+        enrollment: document.getElementById('enrollment').value,
+        attendance,
+        vegName: document.getElementById('vegName').value,
+        vegQty: document.getElementById('vegQty').value,
+        attendanceGivenBy: document.getElementById('attendanceGivenBy').value,
+        witnessedBy: document.getElementById('witnessedBy').value,
+        stock: JSON.parse(JSON.stringify(stockState)),
+        updatedAt: new Date().toISOString()
+      };
+
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(records));
+      updateSavedCount();
+      if (!silent) {
+        showToast(`${date} (${day}) ର ହିସାବ ସଫଳତାର ସହ ସେଭ୍ ହେଲା!`);
+      }
+      return records[date];
+    }
+
+    function loadRecordForDate(dateStr) {
+      const records = getSavedRecords();
+      const rec = records[dateStr];
+      if (!rec) return false;
+
+      document.getElementById('entryDate').value = rec.date;
+      document.getElementById('daySelect').value = rec.day || getDayNameFromDate(rec.date);
+      if (rec.schoolName) document.getElementById('schoolName').value = rec.schoolName;
+      if (rec.kitchenName) document.getElementById('kitchenName').value = rec.kitchenName;
+      if (rec.classRange) document.getElementById('classRange').value = rec.classRange;
+      if (rec.enrollment) document.getElementById('enrollment').value = rec.enrollment;
+      document.getElementById('attendance').value = rec.attendance ?? 0;
+      document.getElementById('vegName').value = rec.vegName || '';
+      document.getElementById('vegQty').value = rec.vegQty || '';
+      if (rec.attendanceGivenBy) document.getElementById('attendanceGivenBy').value = rec.attendanceGivenBy;
+      if (rec.witnessedBy) document.getElementById('witnessedBy').value = rec.witnessedBy;
+
+      // Migrate old records seamlessly so all 17 rows (including row 17 CHIKKI) exist
+      ITEMS.forEach(item => {
+        stockState[item.id] = {
+          opening: parseFloat(rec.stock?.[item.id]?.opening) || 0,
+          received: parseFloat(rec.stock?.[item.id]?.received) || 0,
+          manualIssued: rec.stock?.[item.id]?.manualIssued ?? null
+        };
+      });
+      ensureAllItemsInStockState(stockState);
+
+      renderTable();
+      return true;
+    }
+
+    function carryForwardToNextDay() {
+      saveDailyRecord(true);
+
+      const currentDateStr = document.getElementById('entryDate').value || getTodayISO();
+      const currentDay = document.getElementById('daySelect').value;
+      const attendance = Math.max(0, parseInt(document.getElementById('attendance').value, 10) || 0);
+      const standard = DAY_STANDARDS[currentDay] || DAY_STANDARDS.Monday;
+
+      const nextOpening = {};
+      ITEMS.forEach(item => {
+        const opening = parseFloat(stockState[item.id]?.opening) || 0;
+        const received = parseFloat(stockState[item.id]?.received) || 0;
+        const autoIssued = Number((attendance * (standard.rates[item.id] || 0)).toFixed(4));
+        const hasManual =
+          stockState[item.id]?.manualIssued !== null &&
+          stockState[item.id]?.manualIssued !== undefined &&
+          stockState[item.id]?.manualIssued !== '';
+        const issued = hasManual ? Number((parseFloat(stockState[item.id].manualIssued) || 0).toFixed(4)) : autoIssued;
+        const closing = Math.max(0, Number((opening + received - issued).toFixed(4)));
+        nextOpening[item.id] = closing;
+      });
+
+      const [y, m, d] = currentDateStr.split('-').map(Number);
+      const nextDateObj = new Date(y, m - 1, d + 1);
+      if (nextDateObj.getDay() === 0) {
+        nextDateObj.setDate(nextDateObj.getDate() + 1);
+      }
+      const nextISO = `${nextDateObj.getFullYear()}-${String(nextDateObj.getMonth() + 1).padStart(2, '0')}-${String(nextDateObj.getDate()).padStart(2, '0')}`;
+      const nextDay = getDayNameFromDate(nextISO);
+
+      document.getElementById('entryDate').value = nextISO;
+      document.getElementById('daySelect').value = nextDay;
+      document.getElementById('attendance').value = 0;
+      document.getElementById('vegName').value = '';
+      document.getElementById('vegQty').value = '';
+
+      ITEMS.forEach(item => {
+        stockState[item.id] = {
+          opening: nextOpening[item.id],
+          received: 0,
+          manualIssued: null
+        };
+      });
+
+      renderTable();
+      showToast(`ବଳକା ଷ୍ଟକ୍ ${nextISO} (${nextDay}) କୁ ନିଆଗଲା! ଏବେ ଆଜିର ଉପସ୍ଥାନ ଦିଅନ୍ତୁ ।`);
+    }
+
+    function updateSavedCount() {
+      const records = getSavedRecords();
+      document.getElementById('saved-count').textContent = Object.keys(records).length;
+    }
+
+    // =========================================================================
+    // 5. MODALS: STANDARDS CHART (EDITABLE), HISTORY LIST & CSV EXPORT
+    // =========================================================================
+    function openStandardsModal() {
+      const tbody = document.getElementById('standardsChartBody');
+      const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+      tbody.innerHTML = '';
+
+      ITEMS.forEach(item => {
+        const isChikki = item.id === 'chikki';
+        const tr = document.createElement('tr');
+        tr.className = isChikki ? 'bg-sky-50 font-semibold' : 'hover:bg-slate-50';
+        let cells = `<td class="border border-slate-300 p-2 text-left font-semibold ${isChikki ? 'text-sky-950' : 'text-slate-800'}">${item.sl}. ${item.odia} (${item.eng})</td>`;
+        days.forEach(d => {
+          const val = DAY_STANDARDS[d].rates[item.id] || 0;
+          cells += `
+            <td class="border border-slate-300 p-1">
+              <input type="number" step="0.0001" min="0"
+                data-day="${d}" data-item="${item.id}"
+                value="${val === 0 ? '' : val}"
+                placeholder="0"
+                class="std-rate-input w-16 text-right rounded border ${val > 0 ? 'border-emerald-400 bg-emerald-50/60 font-bold text-emerald-950' : 'border-slate-200 bg-white text-slate-600'} px-1.5 py-1 text-xs tabular-nums focus:border-emerald-600 outline-none" />
+            </td>`;
+        });
+        tr.innerHTML = cells;
+        tbody.appendChild(tr);
+      });
+
+      let fwRow = `<td class="border border-slate-300 p-2 text-left font-bold bg-amber-50">ଜାଳେଣି / Fire Wood (₹)</td>`;
+      let vegRow = `<td class="border border-slate-300 p-2 text-left font-bold bg-amber-50">ପରିବା / Vegetable (₹)</td>`;
+      days.forEach(d => {
+        fwRow += `<td class="border border-slate-300 p-2 font-bold bg-amber-50">₹${DAY_STANDARDS[d].firewood.toFixed(2)}</td>`;
+        vegRow += `<td class="border border-slate-300 p-2 font-bold bg-amber-50">₹${DAY_STANDARDS[d].vegetable.toFixed(2)}</td>`;
+      });
+      tbody.innerHTML += `<tr>${fwRow}</tr><tr>${vegRow}</tr>`;
+
+      document.getElementById('standardsModal').classList.remove('hidden');
+    }
+
+    function saveCustomStandards() {
+      const inputs = document.querySelectorAll('.std-rate-input');
+      inputs.forEach(inp => {
+        const day = inp.getAttribute('data-day');
+        const itemId = inp.getAttribute('data-item');
+        const num = parseFloat(inp.value);
+        if (DAY_STANDARDS[day]) {
+          DAY_STANDARDS[day].rates[itemId] = isNaN(num) || num < 0 ? 0 : num;
+        }
+      });
+      localStorage.setItem(STANDARDS_KEY, JSON.stringify(DAY_STANDARDS));
+      closeModal('standardsModal');
+      renderTable();
+      showToast('ନୂଆ ପରିମାଣ (CHIKKI ଓ ଅନ୍ୟ ସାମଗ୍ରୀ) ସେଭ୍ ହେଲା!');
+    }
+
+    function resetStandardsToDefault() {
+      localStorage.removeItem(STANDARDS_KEY);
+      DAY_STANDARDS = loadDayStandards();
+      openStandardsModal();
+      renderTable();
+      showToast('Default Akshaya Patra rates ପୁନଃସ୍ଥାପିତ ହେଲା ।');
+    }
+
+    function openHistoryModal() {
+      const records = getSavedRecords();
+      const dates = Object.keys(records).sort((a, b) => b.localeCompare(a));
+      const listEl = document.getElementById('historyList');
+
+      if (dates.length === 0) {
+        listEl.innerHTML = `<div class="text-center py-8 text-slate-500 text-sm">ଏପର୍ଯ୍ୟନ୍ତ କୌଣସି ରେକର୍ଡ ସେଭ୍ ହୋଇନାହିଁ ।<br>(No saved records yet.)</div>`;
+      } else {
+        listEl.innerHTML = dates.map(d => {
+          const r = records[d];
+          return `
+            <div class="flex items-center justify-between gap-3 p-3 rounded-xl border border-slate-200 hover:border-emerald-400 bg-slate-50/60">
+              <div>
+                <div class="font-bold text-slate-900 text-sm">${r.date} • ${r.day}</div>
+                <div class="text-xs text-slate-600">ଉପସ୍ଥାନ (Attendance): <strong>${r.attendance}</strong> | ${r.schoolName || 'School'}</div>
+              </div>
+              <div class="flex items-center gap-2">
+                <button type="button" onclick="selectHistoryRecord('${r.date}')" class="px-3 py-1.5 rounded-lg bg-emerald-700 hover:bg-emerald-800 text-white text-xs font-semibold">
+                  Open
+                </button>
+                <button type="button" onclick="deleteHistoryRecord('${r.date}')" class="px-2.5 py-1.5 rounded-lg bg-red-100 hover:bg-red-200 text-red-700 text-xs font-semibold">
+                  🗑️
+                </button>
+              </div>
+            </div>
+          `;
+        }).join('');
+      }
+
+      document.getElementById('historyModal').classList.remove('hidden');
+    }
+
+    function selectHistoryRecord(dateStr) {
+      loadRecordForDate(dateStr);
+      closeModal('historyModal');
+      showToast(`${dateStr} ର ରେକର୍ଡ ଲୋଡ୍ ହେଲା ।`);
+    }
+
+    function deleteHistoryRecord(dateStr) {
+      const records = getSavedRecords();
+      delete records[dateStr];
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(records));
+      updateSavedCount();
+      openHistoryModal();
+      showToast(`${dateStr} ର ରେକର୍ଡ ଡିଲିଟ୍ ହେଲା ।`, true);
+    }
+
+    function closeModal(id) {
+      document.getElementById(id).classList.add('hidden');
+    }
+
+    function exportAllCSV() {
+      const records = getSavedRecords();
+      const dates = Object.keys(records).sort();
+      if (dates.length === 0) {
+        showToast('Export କରିବା ପାଇଁ କୌଣସି ସେଭ୍ ରେକର୍ଡ ନାହିଁ ।', true);
+        return;
+      }
+
+      const headers = ['Date', 'Day', 'School', 'Attendance', ...ITEMS.map(i => `${i.eng} Issued(kg)`), 'Veg Amount(Rs)', 'Firewood Amount(Rs)'];
+      const rows = [headers.join(',')];
+
+      dates.forEach(d => {
+        const r = records[d];
+        const std = DAY_STANDARDS[r.day] || DAY_STANDARDS.Monday;
+        const att = Number(r.attendance) || 0;
+        const itemIssued = ITEMS.map(i => {
+          const manual = r.stock?.[i.id]?.manualIssued;
+          const val = (manual !== null && manual !== undefined && manual !== '') ? Number(manual) : att * (std.rates[i.id] || 0);
+          return formatQty(val);
+        });
+        const vegAmt = (att * (std.vegetable || 0)).toFixed(2);
+        const fwAmt = (att * (std.firewood || 0)).toFixed(2);
+        rows.push([
+          r.date,
+          r.day,
+          `"${(r.schoolName || '').replace(/"/g, '""')}"`,
+          att,
+          ...itemIssued,
+          vegAmt,
+          fwAmt
+        ].join(','));
+      });
+
+      const blob = new Blob([rows.join('\n')], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `MDM_Register_${getTodayISO()}.csv`;
+      a.click();
+      URL.revokeObjectURL(url);
+      showToast('CSV ଫାଇଲ୍ ଡାଉନଲୋଡ୍ ହେଲା!');
+    }
+
+    // =========================================================================
+    // 6. INITIALIZATION & EVENT LISTENERS
+    // =========================================================================
+    window.addEventListener('DOMContentLoaded', () => {
+      loadSchoolProfile();
+      updateSavedCount();
+
+      const today = getTodayISO();
+      const dateInput = document.getElementById('entryDate');
+      dateInput.value = today;
+
+      if (!loadRecordForDate(today)) {
+        document.getElementById('daySelect').value = getDayNameFromDate(today);
+        renderTable();
+      }
+
+      dateInput.addEventListener('change', (e) => {
+        const pickedDate = e.target.value;
+        if (!loadRecordForDate(pickedDate)) {
+          document.getElementById('daySelect').value = getDayNameFromDate(pickedDate);
+          renderTable();
+        }
+      });
+
+      document.getElementById('daySelect').addEventListener('change', renderTable);
+      document.getElementById('attendance').addEventListener('input', renderTable);
+    });
+  </script>
+</body>
+</html>
